@@ -8,6 +8,11 @@ color_index = 0
 last_change = pygame.time.get_ticks()
 running = True
 
+screen_width, screen_height = pygame.display.get_window_size()
+cell_size = 10
+cols = screen_width // cell_size
+rows = screen_height // cell_size
+
 palette = [
     (0x07, 0x07, 0x07), (0x1F, 0x07, 0x07), (0x2F, 0x0F, 0x07), (0x47, 0x0F, 0x07),
     (0x57, 0x17, 0x07), (0x67, 0x1F, 0x07), (0x77, 0x1F, 0x07), (0x8F, 0x27, 0x07),
@@ -21,18 +26,27 @@ palette = [
     (0xFF, 0xFF, 0xFF),
 ]
 
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    current_time = pygame.time.get_ticks()
+    screen.fill("black")
 
-    if current_time - last_change >= 300:
-        color_index = (color_index + 1) % len(palette)
-        last_change = current_time
+    for row in range(rows):
+        color_index = row * (len(palette) - 1) // (rows - 1)
+        color = palette[color_index]
 
-    screen.fill(palette[color_index])
+        for col in range(cols):
+            rect = pygame.Rect(
+                col * cell_size,
+                row * cell_size,
+                cell_size,
+                cell_size
+            )
+            pygame.draw.rect(screen, color, rect)
+
     pygame.display.flip()
     clock.tick(60)
 
