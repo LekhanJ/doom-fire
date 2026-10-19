@@ -1,5 +1,5 @@
 import pygame
-import time
+import math
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -26,8 +26,7 @@ palette = [
     (0xFF, 0xFF, 0xFF),
 ]
 
-fire_pixels = [[0 for _ in range(cols)] for _ in range(rows)]
-fire_pixels[-1] = [36] * cols
+fire_pixels = [0 for _ in range(cols * rows)]
 
 color_map = {
     0: (0x07, 0x07, 0x07),
@@ -75,21 +74,17 @@ while running:
             running = False
 
     screen.fill("black")
-
-    for row in range(rows):
-        for col in range(cols):
-            
-            color_index = fire_pixels[row][col]
-            color = palette[color_index]
-            
-            rect = pygame.Rect(
-                col * cell_size,
-                row * cell_size,
-                cell_size,
-                cell_size
-            )
-            
-            pygame.draw.rect(screen, color, rect)
+    
+    color = palette[24]
+    for i, pixel in enumerate(fire_pixels):
+        rect = pygame.Rect(
+            (i % cols) * cell_size,
+            (math.floor(i / cols)) * cell_size,
+            cell_size,
+            cell_size
+        )
+        
+        pygame.draw.rect(screen, color, rect)
 
     pygame.display.flip()
     clock.tick(60)
