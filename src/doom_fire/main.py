@@ -3,14 +3,15 @@ import math
 import random
 
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((640, 360))
 clock = pygame.time.Clock()
 color_index = 0
 last_change = pygame.time.get_ticks()
 running = True
+space_held = False
 
 screen_width, screen_height = pygame.display.get_window_size()
-cell_size = 5
+cell_size = 3
 cols = screen_width // cell_size
 rows = screen_height // cell_size
 
@@ -28,8 +29,6 @@ palette = [
 ]
 
 fire_pixels = [0 for _ in range(cols * rows)]
-for i in range(len(fire_pixels)-1, (cols*rows)-cols-1, -1):
-    fire_pixels[i] = 36
     
 color_map = {
     0: (0x07, 0x07, 0x07),
@@ -72,20 +71,35 @@ color_map = {
 }
 
 def do_fire():
+    if space_held:
+        for i in range(len(fire_pixels)-1, (cols*rows)-cols-1, -1):
+            fire_pixels[i] = 36
+    else:
+        for i in range(len(fire_pixels)-1, (cols*rows)-cols-1, -1):
+            fire_pixels[i] = 0
     for x in range(cols):
         for y in range(1, rows):
             spread_fire(y * cols + x)
 
 def spread_fire(frm):
     rand = random.randint(0, 3) 
-    to = frm - cols - rand + 1
-    fire_pixels[to] = max(0, fire_pixels[frm] - (rand & 1))
-
+    to = frm - cols + (1 - rand)
+    if 0 <= to < len(fire_pixels):
+        fire_pixels[to] = max(0, fire_pixels[frm] - (rand & 1))
+    
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
+            
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                space_held = True
+        
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE:
+                space_held = False
+                
     screen.fill("black")
     
     do_fire()
