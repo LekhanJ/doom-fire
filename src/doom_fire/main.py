@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -9,7 +10,7 @@ last_change = pygame.time.get_ticks()
 running = True
 
 screen_width, screen_height = pygame.display.get_window_size()
-cell_size = 10
+cell_size = 5
 cols = screen_width // cell_size
 rows = screen_height // cell_size
 
@@ -27,7 +28,9 @@ palette = [
 ]
 
 fire_pixels = [0 for _ in range(cols * rows)]
-
+for i in range(len(fire_pixels)-1, (cols*rows)-cols-1, -1):
+    fire_pixels[i] = 36
+    
 color_map = {
     0: (0x07, 0x07, 0x07),
     1: (0x1F, 0x07, 0x07),
@@ -68,6 +71,16 @@ color_map = {
     36: (0xFF, 0xFF, 0xFF),
 }
 
+def do_fire():
+    for x in range(cols):
+        for y in range(1, rows):
+            spread_fire(y * cols + x)
+
+def spread_fire(frm):
+    rand = random.randint(0, 3) 
+    to = frm - cols - rand + 1
+    fire_pixels[to] = max(0, fire_pixels[frm] - (rand & 1))
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -75,8 +88,11 @@ while running:
 
     screen.fill("black")
     
-    color = palette[24]
+    do_fire()
+    
     for i, pixel in enumerate(fire_pixels):
+        color = color_map[pixel]
+        
         rect = pygame.Rect(
             (i % cols) * cell_size,
             (math.floor(i / cols)) * cell_size,
