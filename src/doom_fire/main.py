@@ -15,6 +15,8 @@ cell_size = 3
 cols = screen_width // cell_size
 rows = screen_height // cell_size
 
+source_intensity = 0.0
+
 palette = [
     (0x07, 0x07, 0x07), (0x1F, 0x07, 0x07), (0x2F, 0x0F, 0x07), (0x47, 0x0F, 0x07),
     (0x57, 0x17, 0x07), (0x67, 0x1F, 0x07), (0x77, 0x1F, 0x07), (0x8F, 0x27, 0x07),
@@ -71,12 +73,16 @@ color_map = {
 }
 
 def do_fire():
+    global source_intensity
+    
     if space_held:
-        for i in range(len(fire_pixels)-1, (cols*rows)-cols-1, -1):
-            fire_pixels[i] = 36
+        source_intensity = min(36.0, source_intensity + 1.0)
     else:
-        for i in range(len(fire_pixels)-1, (cols*rows)-cols-1, -1):
-            fire_pixels[i] = 0
+        source_intensity += (0 - source_intensity) * 0.1
+    
+    for i in range(len(fire_pixels) - cols, len(fire_pixels)):
+        fire_pixels[i] = round(source_intensity)
+    
     for x in range(cols):
         for y in range(1, rows):
             spread_fire(y * cols + x)
